@@ -28,7 +28,7 @@ static GLuint       g_FontTexture = 0;
 // This is the main rendering function that you have to implement and provide to ImGui (via setting up 'RenderDrawListsFn' in the ImGuiIO structure)
 // If text or lines are blurry when integrating ImGui in your engine:
 // - in your Render function, try translating your projection matrix by (0.5f,0.5f) or (0.375f,0.375f)
-void renderDrawLists(ImDrawData* draw_data)
+void RenderDrawLists(ImDrawData* draw_data)
 {
     // Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
     ImGuiIO& io = ImGui::GetIO();
@@ -106,28 +106,28 @@ void renderDrawLists(ImDrawData* draw_data)
     glViewport(last_viewport[0], last_viewport[1], (GLsizei)last_viewport[2], (GLsizei)last_viewport[3]);
 }
 
-static const char* getClipboardText()
+static const char* GetClipboardText()
 {
     return glfwGetClipboardString(g_Window);
 }
 
-static void setClipboardText(const char* text)
+static void SetClipboardText(const char* text)
 {
     glfwSetClipboardString(g_Window, text);
 }
 
-void mouseButtonCallback(GLFWwindow*, int button, int action, int /*mods*/)
+void MouseButtonCallback(GLFWwindow*, int button, int action, int /*mods*/)
 {
     if (action == GLFW_PRESS && button >= 0 && button < 3)
         g_MousePressed[button] = true;
 }
 
-void scrollCallback(GLFWwindow*, double /*xoffset*/, double yoffset)
+void ScrollCallback(GLFWwindow*, double /*xoffset*/, double yoffset)
 {
     g_MouseWheel += (float)yoffset; // Use fractional mouse wheel, 1.0 unit 5 lines.
 }
 
-void ImGui_ImplGlFw_KeyCallback(GLFWwindow*, int key, int, int action, int mods)
+void KeyCallback(GLFWwindow*, int key, int, int action, int mods)
 {
     ImGuiIO& io = ImGui::GetIO();
     if (action == GLFW_PRESS)
@@ -142,14 +142,14 @@ void ImGui_ImplGlFw_KeyCallback(GLFWwindow*, int key, int, int action, int mods)
     io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
 }
 
-void charCallback(GLFWwindow*, unsigned int c)
+void CharCallback(GLFWwindow*, unsigned int c)
 {
     ImGuiIO& io = ImGui::GetIO();
     if (c > 0 && c < 0x10000)
         io.AddInputCharacter((unsigned short)c);
 }
 
-bool createDeviceObjects()
+bool CreateDeviceObjects()
 {
     // Build texture atlas
     ImGuiIO& io = ImGui::GetIO();
@@ -175,7 +175,7 @@ bool createDeviceObjects()
     return true;
 }
 
-void    invalidateDeviceObjects()
+void    InvalidateDeviceObjects()
 {
     if (g_FontTexture)
     {
@@ -185,7 +185,7 @@ void    invalidateDeviceObjects()
     }
 }
 
-bool    init(GLFWwindow* window, bool install_callbacks)
+bool    Init(GLFWwindow* window, bool install_callbacks)
 {
     g_Window = window;
 
@@ -210,34 +210,34 @@ bool    init(GLFWwindow* window, bool install_callbacks)
     io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
     io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
 
-    io.RenderDrawListsFn = renderDrawLists;      // Alternatively you can set this to NULL and call ImGui::GetDrawData() after ImGui::Render() to get the same ImDrawData pointer.
-    io.SetClipboardTextFn = setClipboardText;
-    io.GetClipboardTextFn = getClipboardText;
+    io.RenderDrawListsFn = RenderDrawLists;      // Alternatively you can set this to NULL and call ImGui::GetDrawData() after ImGui::Render() to get the same ImDrawData pointer.
+    io.SetClipboardTextFn = SetClipboardText;
+    io.GetClipboardTextFn = GetClipboardText;
 #ifdef _WIN32
     io.ImeWindowHandle = glfwGetWin32Window(g_Window);
 #endif
 
     if (install_callbacks)
     {
-        glfwSetMouseButtonCallback(window, mouseButtonCallback);
-        glfwSetScrollCallback(window, scrollCallback);
-        glfwSetKeyCallback(window, ImGui_ImplGlFw_KeyCallback);
-        glfwSetCharCallback(window, charCallback);
+        glfwSetMouseButtonCallback(window, MouseButtonCallback);
+        glfwSetScrollCallback(window, ScrollCallback);
+        glfwSetKeyCallback(window, KeyCallback);
+        glfwSetCharCallback(window, CharCallback);
     }
 
     return true;
 }
 
-void shutdown()
+void Shutdown()
 {
-    invalidateDeviceObjects();
+    InvalidateDeviceObjects();
     ImGui::Shutdown();
 }
 
-void newFrame()
+void NewFrame()
 {
     if (!g_FontTexture)
-        createDeviceObjects();
+        CreateDeviceObjects();
 
     ImGuiIO& io = ImGui::GetIO();
 
