@@ -6,8 +6,8 @@
 // If you are new to ImGui, see examples/README.txt and documentation at the top of imgui.cpp.
 // https://github.com/ocornut/imgui
 
-#include <imgui.h>
-#include "imgui_impl_glfw.h"
+#include "imgui/imgui.h"
+#include "imgui/ref/glfw.h"
 
 // GLFW
 #include <GLFW/glfw3.h>
@@ -28,7 +28,7 @@ static GLuint       g_FontTexture = 0;
 // This is the main rendering function that you have to implement and provide to ImGui (via setting up 'RenderDrawListsFn' in the ImGuiIO structure)
 // If text or lines are blurry when integrating ImGui in your engine:
 // - in your Render function, try translating your projection matrix by (0.5f,0.5f) or (0.375f,0.375f)
-void ImGui_ImplGlfw_RenderDrawLists(ImDrawData* draw_data)
+void renderDrawLists(ImDrawData* draw_data)
 {
     // Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
     ImGuiIO& io = ImGui::GetIO();
@@ -106,23 +106,23 @@ void ImGui_ImplGlfw_RenderDrawLists(ImDrawData* draw_data)
     glViewport(last_viewport[0], last_viewport[1], (GLsizei)last_viewport[2], (GLsizei)last_viewport[3]);
 }
 
-static const char* ImGui_ImplGlfw_GetClipboardText()
+static const char* getClipboardText()
 {
     return glfwGetClipboardString(g_Window);
 }
 
-static void ImGui_ImplGlfw_SetClipboardText(const char* text)
+static void setClipboardText(const char* text)
 {
     glfwSetClipboardString(g_Window, text);
 }
 
-void ImGui_ImplGlfw_MouseButtonCallback(GLFWwindow*, int button, int action, int /*mods*/)
+void mouseButtonCallback(GLFWwindow*, int button, int action, int /*mods*/)
 {
     if (action == GLFW_PRESS && button >= 0 && button < 3)
         g_MousePressed[button] = true;
 }
 
-void ImGui_ImplGlfw_ScrollCallback(GLFWwindow*, double /*xoffset*/, double yoffset)
+void scrollCallback(GLFWwindow*, double /*xoffset*/, double yoffset)
 {
     g_MouseWheel += (float)yoffset; // Use fractional mouse wheel, 1.0 unit 5 lines.
 }
@@ -142,14 +142,14 @@ void ImGui_ImplGlFw_KeyCallback(GLFWwindow*, int key, int, int action, int mods)
     io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
 }
 
-void ImGui_ImplGlfw_CharCallback(GLFWwindow*, unsigned int c)
+void charCallback(GLFWwindow*, unsigned int c)
 {
     ImGuiIO& io = ImGui::GetIO();
     if (c > 0 && c < 0x10000)
         io.AddInputCharacter((unsigned short)c);
 }
 
-bool ImGui_ImplGlfw_CreateDeviceObjects()
+bool createDeviceObjects()
 {
     // Build texture atlas
     ImGuiIO& io = ImGui::GetIO();
@@ -175,7 +175,7 @@ bool ImGui_ImplGlfw_CreateDeviceObjects()
     return true;
 }
 
-void    ImGui_ImplGlfw_InvalidateDeviceObjects()
+void    invalidateDeviceObjects()
 {
     if (g_FontTexture)
     {
@@ -185,7 +185,7 @@ void    ImGui_ImplGlfw_InvalidateDeviceObjects()
     }
 }
 
-bool    ImGui_ImplGlfw_Init(GLFWwindow* window, bool install_callbacks)
+bool    init(GLFWwindow* window, bool install_callbacks)
 {
     g_Window = window;
 
@@ -210,34 +210,34 @@ bool    ImGui_ImplGlfw_Init(GLFWwindow* window, bool install_callbacks)
     io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
     io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
 
-    io.RenderDrawListsFn = ImGui_ImplGlfw_RenderDrawLists;      // Alternatively you can set this to NULL and call ImGui::GetDrawData() after ImGui::Render() to get the same ImDrawData pointer.
-    io.SetClipboardTextFn = ImGui_ImplGlfw_SetClipboardText;
-    io.GetClipboardTextFn = ImGui_ImplGlfw_GetClipboardText;
+    io.RenderDrawListsFn = renderDrawLists;      // Alternatively you can set this to NULL and call ImGui::GetDrawData() after ImGui::Render() to get the same ImDrawData pointer.
+    io.SetClipboardTextFn = setClipboardText;
+    io.GetClipboardTextFn = getClipboardText;
 #ifdef _WIN32
     io.ImeWindowHandle = glfwGetWin32Window(g_Window);
 #endif
 
     if (install_callbacks)
     {
-        glfwSetMouseButtonCallback(window, ImGui_ImplGlfw_MouseButtonCallback);
-        glfwSetScrollCallback(window, ImGui_ImplGlfw_ScrollCallback);
+        glfwSetMouseButtonCallback(window, mouseButtonCallback);
+        glfwSetScrollCallback(window, scrollCallback);
         glfwSetKeyCallback(window, ImGui_ImplGlFw_KeyCallback);
-        glfwSetCharCallback(window, ImGui_ImplGlfw_CharCallback);
+        glfwSetCharCallback(window, charCallback);
     }
 
     return true;
 }
 
-void ImGui_ImplGlfw_Shutdown()
+void shutdown()
 {
-    ImGui_ImplGlfw_InvalidateDeviceObjects();
+    invalidateDeviceObjects();
     ImGui::Shutdown();
 }
 
-void ImGui_ImplGlfw_NewFrame()
+void newFrame()
 {
     if (!g_FontTexture)
-        ImGui_ImplGlfw_CreateDeviceObjects();
+        createDeviceObjects();
 
     ImGuiIO& io = ImGui::GetIO();
 
