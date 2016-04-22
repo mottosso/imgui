@@ -15,7 +15,7 @@
 
 struct GLFWwindow;
 
-IMGUI_API bool        Init(GLFWwindow* window, bool install_callbacks=true);
+IMGUI_API bool        Init(GLFWwindow* window, bool install_callbacks);
 IMGUI_API void        Shutdown();
 IMGUI_API void        NewFrame();
 
